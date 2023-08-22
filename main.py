@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import PhotoImage
+from PIL import Image, ImageTk
 import funcoes as f
 
 def abrir_nova_tela(checkbox_vars, partidos,s,treshold):
@@ -13,10 +15,17 @@ def abrir_nova_tela(checkbox_vars, partidos,s,treshold):
     label.pack(padx=20, pady=20)
     label.configure(font=("Helvetica", 14))
 
-    nova_tela.geometry(f"1200x700")
-    nova_tela.geometry(f"+400-200")
+    nova_tela.geometry(f"1400x950")
+    nova_tela.geometry(f"+150-57")
 
     f.mostrar_selecionados(checkbox_vars, partidos,s,valor_digitado)
+
+    image_pil = Image.open("grafico.png")  # Substitua pelo caminho da sua imagem
+    image = ImageTk.PhotoImage(image_pil)
+    image_label = tk.Label(nova_tela, image=image)
+    image_label.image = image
+    image_label.pack()
+    #image_label.place(x = 285, y = 262)
     
     # Definindo uma função para fechar a nova tela e mostrar a janela principal novamente
     def fechar_nova_tela():
@@ -24,7 +33,7 @@ def abrir_nova_tela(checkbox_vars, partidos,s,treshold):
         root.deiconify()  # Mostra a janela principal novamente
 
     voltar_botao = tk.Button(nova_tela, text="Voltar", command=fechar_nova_tela)
-    voltar_botao.place(x = 550, y = 600)
+    voltar_botao.place(x = 680, y = 900)
     voltar_botao.configure(font=("Helvetica", 14))
 
 def selecionar_partidos():

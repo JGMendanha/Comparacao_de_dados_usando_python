@@ -17,8 +17,7 @@ def normalizacao(partidos_selecionados, ano,treshold):
     arquivo_politician = "dataset/politicians" + ano + ".txt"
     arquivo_grafo = "dataset/graph" + ano + ".txt"
     partido_deputado = {}
-    chave_remove = []
-
+    
     with open(arquivo_politician, 'r', encoding='utf-8') as file:
         candidatos = []
         grafo_qnt_votos = {}
@@ -41,8 +40,8 @@ def normalizacao(partidos_selecionados, ano,treshold):
                     deputados.append(elementos[0])
 
     betweenness = nx.betweenness_centrality(grafo_analise_treshold)
-    #grafico(betweenness, deputados)
     plotagem(grafo_analise_treshold, partidos_selecionados, partido_deputado)
+    grafico(betweenness, deputados)
 
 def grafico(betweenness, lista_deputados):
     fig, ax = mp.subplots(figsize = (10, 6))
@@ -67,7 +66,6 @@ def grafico(betweenness, lista_deputados):
     mp.savefig("grafico.png", dpi=140, bbox_inches='tight')
 
 def plotagem(grafo, partidos, partido_deputado):
-    #print(partido_deputado)
     cores = [
         (0.12156862745098039, 0.4666666666666667, 0.7058823529411765),
         (1.0, 0.4980392156862745, 0.054901960784313725),
@@ -88,7 +86,8 @@ def plotagem(grafo, partidos, partido_deputado):
     for deputado in grafo.nodes():
         cor_no.append(cores_partido[partido_deputado[deputado]])
     
-    layout = nx.spring_layout(grafo)
-    nx.draw(grafo, pos=layout, with_labels=True, node_size=300, node_color=cor_no, font_size=10)
+    layout = nx.spring_layout(grafo, scale=10000)
+    fig, ax = mp.subplots(figsize=(10, 6))
+    nx.draw(grafo, pos=layout, with_labels=True, node_size=100, node_color=cor_no, font_size=10)
     mp.savefig("plotagem.png", dpi=140, bbox_inches='tight')
     mp.show()

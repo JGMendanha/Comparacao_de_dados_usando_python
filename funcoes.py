@@ -35,15 +35,14 @@ def normalizacao(partidos_selecionados, ano,treshold):
             if elementos[0] in candidatos  and elementos[1] in candidatos:
                 peso = int(elementos[2])/min(grafo_qnt_votos[elementos[0]], grafo_qnt_votos[elementos[1]])
                 grafo_analise.add_edge(elementos[0], elementos[1], weight = peso)
-                if peso >= float(treshold):
-                    grafo_analise_treshold.add_edge(elementos[0],elementos[1], weight = (1 - peso))
+                grafo_analise_treshold.add_edge(elementos[0], elementos[1], weight = 1 - peso)
+                if peso < float(treshold):
+                    grafo_analise_treshold.remove_edge(elementos[0],elementos[1])
                     deputados.append(elementos[0])
-                else:
-                    chave_remove.append(elementos[0])
 
     betweenness = nx.betweenness_centrality(grafo_analise_treshold)
     #grafico(betweenness, deputados)
-    plotagem(grafo_analise_treshold, partidos_selecionados, partido_deputado, chave_remove)
+    plotagem(grafo_analise_treshold, partidos_selecionados, partido_deputado)
 
 def grafico(betweenness, lista_deputados):
     fig, ax = mp.subplots(figsize = (10, 6))
@@ -67,7 +66,7 @@ def grafico(betweenness, lista_deputados):
 
     mp.savefig("grafico.png", dpi=140, bbox_inches='tight')
 
-def plotagem(grafo, partidos, partido_deputado, chave_remove):
+def plotagem(grafo, partidos, partido_deputado):
     #print(partido_deputado)
     cores = [
         (0.12156862745098039, 0.4666666666666667, 0.7058823529411765),
@@ -86,10 +85,10 @@ def plotagem(grafo, partidos, partido_deputado, chave_remove):
     for i in range(len(partidos)):
        cores_partido[partidos[i]] = cores[i]
     
-    for deputado in partido_deputado:
-       if deputado not in chave_remove:
+    for deputado in grafo.nodes():
         cor_no.append(cores_partido[partido_deputado[deputado]])
     
     layout = nx.spring_layout(grafo)
     nx.draw(grafo, pos=layout, with_labels=True, node_size=300, node_color=cor_no, font_size=10)
+    mp.savefig("plotagem.png", dpi=140, bbox_inches='tight')
     mp.show()

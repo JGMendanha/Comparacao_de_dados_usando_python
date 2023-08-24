@@ -18,7 +18,7 @@ def abrir_nova_tela(checkbox_vars, partidos,s,treshold):
     nova_tela.geometry(f"1400x950")
     nova_tela.geometry(f"+150-57")
 
-    f.mostrar_selecionados(checkbox_vars, partidos,s,valor_digitado)
+    (checkbox_vars, partidos,s,valor_digitado)
 
     image_pil = Image.open("grafico.png")  # Substitua pelo caminho da sua imagem
     image = ImageTk.PhotoImage(image_pil)

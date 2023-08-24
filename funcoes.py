@@ -1,5 +1,6 @@
 import matplotlib.pyplot as mp
 import networkx as nx
+import numpy as np
 
 def mostrar_selecionados(checkbox_vars, partidos, ano,treshold):
     partidos_selecionados = []
@@ -40,8 +41,9 @@ def normalizacao(partidos_selecionados, ano,treshold):
                     deputados.append(elementos[0])
 
     betweenness = nx.betweenness_centrality(grafo_analise_treshold)
-    plotagem(grafo_analise_treshold, partidos_selecionados, partido_deputado)
-    grafico(betweenness, deputados)
+    #plotagem(grafo_analise_treshold, partidos_selecionados, partido_deputado)
+    #grafico(betweenness, deputados)
+    heatmap(grafo_analise, partido_deputado, partidos_selecionados)
 
 def grafico(betweenness, lista_deputados):
     fig, ax = mp.subplots(figsize = (10, 6))
@@ -80,14 +82,42 @@ def plotagem(grafo, partidos, partido_deputado):
     ]
     cores_partido = {}
     cor_no = []
+
     for i in range(len(partidos)):
        cores_partido[partidos[i]] = cores[i]
     
     for deputado in grafo.nodes():
         cor_no.append(cores_partido[partido_deputado[deputado]])
     
-    layout = nx.spring_layout(grafo, scale=10000)
-    fig, ax = mp.subplots(figsize=(10, 6))
-    nx.draw(grafo, pos=layout, with_labels=True, node_size=100, node_color=cor_no, font_size=10)
-    mp.savefig("plotagem.png", dpi=140, bbox_inches='tight')
+    layout = nx.spring_layout(grafo)
+    fig, ax = mp.subplots()
+    mp.figure(num=None, figsize=(10, 6), dpi=140)
+    nx.draw(grafo, pos=layout, with_labels=True, node_size=10, node_color=cor_no, font_size=6, width=0.1)
+    mp.savefig("plotagem.png", bbox_inches='tight')
     mp.show()
+
+def heatmap(grafo, partido_deputado, partidos_selecionados):
+    labels = []
+    nos = sorted(grafo.nodes(), key=str.lower)
+    adj_matrix = nx.adjacency_matrix(grafo, nodelist=grafo.nodes()).todense()
+
+    for i in range(len(partidos_selecionados)):
+        for deputado in partido_deputado:
+            if partido_deputado[deputado] == partidos_selecionados[i]:
+                label = deputado + "(" + partidos_selecionados[i] + ")"
+                labels.append(label)
+
+    labels = sorted(labels, key=str.lower)
+ 
+    fig, ax = mp.subplots(figsize=(10, 6), dpi=160)
+    mp.xticks(rotation=45, ha='right', fontsize=4)
+    mp.yticks(range(len(labels)), labels, fontsize=4)
+    mp.plot(labels, labels)
+
+    heatmap = ax.imshow(adj_matrix, cmap='hot', interpolation='nearest')
+    fig.colorbar(heatmap, ax=ax)
+    
+    mp.subplots_adjust(bottom=0.2)
+    
+    mp.title('Heatmap')
+    mp.savefig("heatmap.png", bbox_inches='tight')

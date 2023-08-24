@@ -20,12 +20,25 @@ def abrir_nova_tela(checkbox_vars, partidos,s,treshold):
 
     f.mostrar_selecionados(checkbox_vars, partidos,s,valor_digitado)
 
-    image_pil = Image.open("grafico.png")  # Substitua pelo caminho da sua imagem
+    image_pil = Image.open("grafico.png")  
     image = ImageTk.PhotoImage(image_pil)
     image_label = tk.Label(nova_tela, image=image)
     image_label.image = image
     image_label.pack()
-    #image_label.place(x = 285, y = 262)
+
+    image_pil2 = Image.open("heatmap.png")  
+    image2 = ImageTk.PhotoImage(image_pil2)
+    image_label2 = tk.Label(nova_tela, image=image2)
+    image_label2.image = image2
+    image_label2.pack()
+    image_label2.place(y = 262)
+
+    image_pil1 = Image.open("plotagem.png")  
+    image1 = ImageTk.PhotoImage(image_pil1)
+    image_label1 = tk.Label(nova_tela, image=image1)
+    image_label1.image = image1
+    image_label1.pack()
+    image_label1.place(y = 131)
     
     # Definindo uma função para fechar a nova tela e mostrar a janela principal novamente
     def fechar_nova_tela():

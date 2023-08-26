@@ -4,66 +4,49 @@ from tkinter import PhotoImage
 from PIL import Image, ImageTk
 import funcoes as f
 
-def abrir_nova_tela(checkbox_vars, partidos,s,treshold):
-    root.withdraw()  # Esconde a janela principal
-    nova_tela = tk.Toplevel(root)
-    nova_tela.title("Nova Tela")
+def tela_resultado(checkbox_vars, partidos,s,treshold): 
+    tela_resultado = tk.Toplevel(root)
+    tela_resultado.title("Nova Tela")
     
     valor_digitado = treshold.get()
     mensagem = f"Resultados considerando um Treshold de {valor_digitado}"
-    label = tk.Label(nova_tela, text=mensagem)
-    label.pack(padx=20, pady=20)
-    label.configure(font=("Helvetica", 14))
+    mensagem_inicial = tk.Label(tela_resultado, text=mensagem)
+    mensagem_inicial.pack(padx=20, pady=20)
+    mensagem_inicial.configure(font=("Helvetica", 14))
 
-    nova_tela.geometry(f"1400x950")
-    nova_tela.geometry(f"+150-57")
+    mensagem2 = f"As imagens foram baixadas na pasta do arquivo e poderão ser vistas em abas que serão abertas "
+    orientacao_basica = tk.Label(tela_resultado, text=mensagem2)
+    orientacao_basica.pack(padx=20, pady=20)
+    orientacao_basica.configure(font=("Helvetica", 14))
+
+    tela_resultado.geometry(f"900x500")
+    tela_resultado.geometry(f"+150-57")
+
+    def fechar_nova_tela():
+        tela_resultado.destroy() 
+        root.deiconify()  
+
+    voltar_botao = tk.Button(tela_resultado, text="Voltar", command=fechar_nova_tela)
+    voltar_botao.place(x = 400, y = 450)
+    voltar_botao.configure(font=("Helvetica", 14))
 
     f.mostrar_selecionados(checkbox_vars, partidos,s,valor_digitado)
 
-    image_pil = Image.open("grafico.png")  
-    image = ImageTk.PhotoImage(image_pil)
-    image_label = tk.Label(nova_tela, image=image)
-    image_label.image = image
-    image_label.pack()
-
-    image_pil2 = Image.open("heatmap.png")  
-    image2 = ImageTk.PhotoImage(image_pil2)
-    image_label2 = tk.Label(nova_tela, image=image2)
-    image_label2.image = image2
-    image_label2.pack()
-    image_label2.place(y = 262)
-
-    image_pil1 = Image.open("plotagem.png")  
-    image1 = ImageTk.PhotoImage(image_pil1)
-    image_label1 = tk.Label(nova_tela, image=image1)
-    image_label1.image = image1
-    image_label1.pack()
-    image_label1.place(y = 131)
-    
-    # Definindo uma função para fechar a nova tela e mostrar a janela principal novamente
-    def fechar_nova_tela():
-        nova_tela.destroy()  # Destroi a nova tela
-        root.deiconify()  # Mostra a janela principal novamente
-
-    voltar_botao = tk.Button(nova_tela, text="Voltar", command=fechar_nova_tela)
-    voltar_botao.place(x = 680, y = 900)
-    voltar_botao.configure(font=("Helvetica", 14))
-
 def selecionar_partidos():
-    root.withdraw()  # Esconde a janela principal
-    nova_tela = tk.Toplevel(root)
-    nova_tela.title("Nova Tela")
-    nova_tela.geometry(f"900x500")
-    nova_tela.geometry(f"+500-300")
+    root.withdraw()  
+    tela_selecao_partido = tk.Toplevel(root)
+    tela_selecao_partido.title("Nova Tela")
+    tela_selecao_partido.geometry(f"900x500")
+    tela_selecao_partido.geometry(f"+500-300")
 
     mensagem = '''Selecione os partidos que deseja fazer as comparações'''
 
-    label = tk.Label(nova_tela, text=mensagem)
-    label.place(x=220, y=20)
-    label.configure(font=("Helvetica", 14))
+    mensagem_inicial = tk.Label(tela_selecao_partido, text=mensagem)
+    mensagem_inicial.place(x=220, y=20)
+    mensagem_inicial.configure(font=("Helvetica", 14))
 
-    selecionado = tree.selection()
-    s = tree.item(selecionado, "text")
+    selecionado = tree_anos.selection()
+    s = tree_anos.item(selecionado, "text")
 
     arquivo_ano = "dataset/politicians" + str(s) + ".txt"
 
@@ -76,37 +59,37 @@ def selecionar_partidos():
 
     checkbox_vars = []
 
-    frame = tk.Frame(nova_tela) 
-    frame.place(x=440, y= 200, anchor="center") 
+    lista_partido = tk.Frame(tela_selecao_partido) 
+    lista_partido.place(x=440, y= 200, anchor="center") 
 
     for i, partido in enumerate(partidos):
         linha = i // 3
         coluna = i % 3
         var = tk.BooleanVar(value=False)
         checkbox_vars.append(var)
-        checkbox = tk.Checkbutton(frame, text=partido, variable=var)
+        checkbox = tk.Checkbutton(lista_partido, text=partido, variable=var)
         checkbox.configure(font=("Helvetica", 14))
         checkbox.grid(row=linha, column=coluna, sticky="w")
     
-    digite = tk.Label(nova_tela,text="Digite o Threshold (0.0 - 1.0):")
-    digite.pack()
-    digite.configure(font=("Helvetica", 14))
-    digite.place(x = 250, y = 350)
-    entrada = tk.Entry(nova_tela,width=5, )  # Defina o tamanho da entrada usando o parâmetro 'width'
-    entrada.pack()
-    entrada.place(x = 500, y = 350)
-    entrada.configure(font=("Helvetica", 14))
+    digite_treshold = tk.Label(tela_selecao_partido,text="Digite o Threshold (0.0 - 1.0):")
+    digite_treshold.pack()
+    digite_treshold.configure(font=("Helvetica", 14))
+    digite_treshold.place(x = 250, y = 350)
+    captura_treshold = tk.Entry(tela_selecao_partido,width=5, )  
+    captura_treshold.pack()
+    captura_treshold.place(x = 500, y = 350)
+    captura_treshold.configure(font=("Helvetica", 14))
 
-    btn_mostrar = tk.Button(nova_tela, text="Mostrar resultados", command=lambda:  abrir_nova_tela(checkbox_vars, partidos,s,entrada))
-    btn_mostrar.pack()
-    btn_mostrar.place(x=350, y=400)
-    btn_mostrar.configure(font=("Helvetica", 14))
+    resultados = tk.Button(tela_selecao_partido, text="Mostrar resultados", command=lambda:  tela_resultado(checkbox_vars, partidos,s,captura_treshold))
+    resultados.pack()
+    resultados.place(x=350, y=400)
+    resultados.configure(font=("Helvetica", 14))
 
     def fechar_nova_tela():
-        nova_tela.destroy()  # Destroi a nova tela
-        root.deiconify()  # Mostra a janela principal novamente
+        tela_selecao_partido.destroy() 
+        root.deiconify() 
 
-    voltar_botao = tk.Button(nova_tela, text="Voltar", command=fechar_nova_tela)
+    voltar_botao = tk.Button(tela_selecao_partido, text="Voltar", command=fechar_nova_tela)
     voltar_botao.place(x = 400, y = 450)
     voltar_botao.configure(font=("Helvetica", 14))
 
@@ -119,36 +102,36 @@ mensagem = '''Bem-vindo a comparação de dados de Deputados Federais e suas vot
 
       Selecione o ano que deseja fazer as comparações'''
 
-label = tk.Label(root, text=mensagem)
-label.place(x=120, y=20)
-label.configure(font=("Helvetica", 14))
+mensagem_inicial = tk.Label(root, text=mensagem)
+mensagem_inicial.place(x=120, y=20)
+mensagem_inicial.configure(font=("Helvetica", 14))
 
 itens = ["2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011",
     "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020",
     "2021", "2022", "2023"]
 
-frame = tk.Frame(root)
-frame.place(x=330, y=140)
+lista_anos = tk.Frame(root)
+lista_anos.place(x=330, y=140)
 
-tree = ttk.Treeview(frame, selectmode="extended", height=8)
-scrollbar = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
+tree_anos = ttk.Treeview(lista_anos, selectmode="extended", height=8)
+scrollbar = ttk.Scrollbar(lista_anos, orient="vertical", command=tree_anos.yview)
 
-tree["columns"] = ("item",)
-tree.column("#0", width=0, stretch=tk.NO) 
-tree.column("item", anchor="w", width=200)
-tree.heading("item", text="Opções")
-tree.configure(yscrollcommand=scrollbar.set)
-tree.tag_configure("custom_font", font=("Helvetica", 14))
+tree_anos["columns"] = ("item",)
+tree_anos.column("#0", width=0, stretch=tk.NO) 
+tree_anos.column("item", anchor="w", width=200)
+tree_anos.heading("item", text="Opções")
+tree_anos.configure(yscrollcommand=scrollbar.set)
+tree_anos.tag_configure("custom_font", font=("Helvetica", 14))
 
 scrollbar.pack(side=tk.RIGHT, fill="y")
-tree.pack(fill="both", expand=False)
+tree_anos.pack(fill="both", expand=False)
 
 for item in itens:
-    tree.insert("", tk.END, text=item, values=(item,))
+    tree_anos.insert("", tk.END, text=item, values=(item,))
 
-btn_mostrar = tk.Button(root, text="Selecionar", command=selecionar_partidos)
-btn_mostrar.pack()
-btn_mostrar.place(x=375, y=400)
-btn_mostrar.configure(font=("Helvetica", 14))
+botao_selecionar_ano = tk.Button(root, text="Selecionar", command=selecionar_partidos)
+botao_selecionar_ano.pack()
+botao_selecionar_ano.place(x=375, y=400)
+botao_selecionar_ano.configure(font=("Helvetica", 14))
 
 root.mainloop()

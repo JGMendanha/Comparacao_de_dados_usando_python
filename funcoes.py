@@ -8,13 +8,12 @@ def mostrar_selecionados(checkbox_vars, partidos, ano,treshold):
         selecionado = var.get()
         if selecionado:
             partidos_selecionados.append(partidos[i])
-    normalizacao(partidos_selecionados, ano,treshold)
+    construtor_grafo(partidos_selecionados, ano,treshold)
 
-def normalizacao(partidos_selecionados, ano,treshold):
+def construtor_grafo(partidos_selecionados, ano,treshold):
 
     grafo_analise_treshold = nx.Graph()
     grafo_analise = nx.Graph()
-    deputados = []
     arquivo_politician = "dataset/politicians" + ano + ".txt"
     arquivo_grafo = "dataset/graph" + ano + ".txt"
     partido_deputado = {}
@@ -38,25 +37,25 @@ def normalizacao(partidos_selecionados, ano,treshold):
                 grafo_analise_treshold.add_edge(elementos[0], elementos[1], weight = 1 - peso)
                 if peso < float(treshold):
                     grafo_analise_treshold.remove_edge(elementos[0],elementos[1])
-                    deputados.append(elementos[0])
 
+    gerador_imagens(grafo_analise_treshold, partidos_selecionados, partido_deputado, grafo_analise)
+
+def gerador_imagens(grafo_analise_treshold, partidos_selecionados, partido_deputado, grafo_analise):
     betweenness = nx.betweenness_centrality(grafo_analise_treshold)
-    #plotagem(grafo_analise_treshold, partidos_selecionados, partido_deputado)
-    #grafico(betweenness, deputados)
+    grafico(betweenness)
+    plotagem(grafo_analise_treshold, partidos_selecionados, partido_deputado)
     heatmap(grafo_analise, partido_deputado, partidos_selecionados)
 
-def grafico(betweenness, lista_deputados):
-    fig, ax = mp.subplots(figsize = (10, 6))
+def grafico(betweenness):
+    fig, ax = mp.subplots(figsize=(10, 6))
 
-    medidas_centralidade = []
+    betweenness_sorted = dict(sorted(betweenness.items(), key=lambda item: item[1]))
 
-    for deputado in lista_deputados:
-        medidas_centralidade.append(betweenness[deputado])
-
-    bar_labels = 'black'
+    bar_labels = list(betweenness_sorted.keys())  
+    bar_heights = list(betweenness_sorted.values()) 
     bar_colors = 'tab:blue'
 
-    ax.bar(lista_deputados, medidas_centralidade, label=bar_labels, color=bar_colors)
+    ax.bar(bar_labels, bar_heights, color=bar_colors)
 
     ax.set_ylabel('Betweenness')
     ax.set_xlabel('Deputados')
@@ -66,6 +65,7 @@ def grafico(betweenness, lista_deputados):
     mp.tight_layout()
 
     mp.savefig("grafico.png", dpi=140, bbox_inches='tight')
+    mp.show()
 
 def plotagem(grafo, partidos, partido_deputado):
     cores = [
@@ -78,8 +78,28 @@ def plotagem(grafo, partidos, partido_deputado):
         (0.8901960784313725, 0.4666666666666667, 0.7607843137254902),
         (0.4980392156862745, 0.4980392156862745, 0.4980392156862745),
         (0.7372549019607844, 0.7411764705882353, 0.13333333333333333),
-        (0.09019607843137255, 0.7450980392156863, 0.8117647058823529)
-    ]
+        (0.09019607843137255, 0.7450980392156863, 0.8117647058823529),
+        (1.0, 0.0, 0.0),
+        (0.0, 1.0, 0.0), 
+        (0.0, 0.0, 1.0), 
+        (1.0, 1.0, 0.0), 
+        (1.0, 0.0, 1.0),
+        (0.0, 1.0, 1.0), 
+        (0.5019607843137255, 0.0, 0.0),   
+        (0.0, 0.5019607843137255, 0.0),  
+        (0.0, 0.0, 0.5019607843137255),   
+        (0.5019607843137255, 0.5019607843137255, 0.0),   
+        (0.5019607843137255, 0.0, 0.5019607843137255),   
+        (0.0, 0.5019607843137255, 0.5019607843137255),   
+        (0.7529411764705882, 0.7529411764705882, 0.7529411764705882), 
+        (0.5019607843137255, 0.5019607843137255, 0.5019607843137255),
+        (1.0, 0.6470588235294118, 0.0),   
+        (1.0, 0.7529411764705882, 0.796078431372549), 
+        (1.0, 0.8941176470588236, 0.7098039215686275), 
+        (0.0, 0.0, 0.0),      
+        (1.0, 1.0, 1.0), 
+        (0.0, 0.0, 0.27450980392156865)       
+]
     cores_partido = {}
     cor_no = []
 
@@ -96,28 +116,41 @@ def plotagem(grafo, partidos, partido_deputado):
     mp.savefig("plotagem.png", bbox_inches='tight')
     mp.show()
 
+
 def heatmap(grafo, partido_deputado, partidos_selecionados):
+
     labels = []
-    nos = sorted(grafo.nodes(), key=str.lower)
-    adj_matrix = nx.adjacency_matrix(grafo, nodelist=grafo.nodes()).todense()
+    labels_partido = []
 
     for i in range(len(partidos_selecionados)):
         for deputado in partido_deputado:
             if partido_deputado[deputado] == partidos_selecionados[i]:
-                label = deputado + "(" + partidos_selecionados[i] + ")"
-                labels.append(label)
+                labels_partido.append((deputado, partidos_selecionados[i]))
 
-    labels = sorted(labels, key=str.lower)
- 
+    labels_partido = sorted(labels_partido, key=lambda x: x[1])
+
+    adj_matrix_sorted = np.zeros((len(labels_partido), len(labels_partido)))
+
+    for i, (dep1, partido1) in enumerate(labels_partido):
+        for j, (dep2, partido2) in enumerate(labels_partido):
+            if grafo.has_edge(dep1, dep2):
+                adj_matrix_sorted[i, j] = grafo[dep1][dep2]['weight']
+
+    for dep, partido in labels_partido:
+        deputado = f"{dep} ({partido})"
+        labels.append(deputado)
+
     fig, ax = mp.subplots(figsize=(10, 6), dpi=160)
     mp.xticks(rotation=45, ha='right', fontsize=4)
-    mp.yticks(range(len(labels)), labels, fontsize=4)
+    mp.yticks(range(len(labels_partido)), labels, fontsize=4)
     mp.plot(labels, labels)
 
-    heatmap = ax.imshow(adj_matrix, cmap='hot', interpolation='nearest')
+    heatmap = ax.imshow(adj_matrix_sorted, cmap='hot', interpolation='nearest', aspect='auto')
     fig.colorbar(heatmap, ax=ax)
     
     mp.subplots_adjust(bottom=0.2)
     
     mp.title('Heatmap')
     mp.savefig("heatmap.png", bbox_inches='tight')
+    mp.show()
+
